@@ -36,6 +36,13 @@ for (const dir of [path.join(getClaudeDir(), 'ponytail-modes'), path.join(os.hom
 removeIfExists(path.join(process.env.CODEBUDDY_CONFIG_DIR || path.join(os.homedir(), '.codebuddy'), '.ponytail-active'), 'CodeBuddy mode flag');
 removeIfExists(path.join(process.env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config'), 'opencode', '.ponytail-active'), 'OpenCode mode flag');
 removeIfExists(getConfigPath(), 'config file');
+// The band's task ledger and board (hooks/band/register.tsx ledgerDir): task names are prompt text.
+const bandDir = path.join(process.env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config'), 'ponytail', 'band');
+if (fs.existsSync(bandDir)) {
+  fs.rmSync(bandDir, { recursive: true });
+  console.log(`Removed band task ledger: ${bandDir}`);
+}
+removeIfExists(path.join(getClaudeDir(), '.ponytail-band'), 'band flag');
 // Statusline script copies the activate hook keeps in the config dir (#1032).
 for (const name of ['ponytail-statusline.sh', 'ponytail-statusline.ps1']) {
   removeIfExists(path.join(getClaudeDir(), name), 'statusline script');

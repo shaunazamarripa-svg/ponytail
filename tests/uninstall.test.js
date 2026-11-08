@@ -43,6 +43,13 @@ const opencodeFlagPath = path.join(temp, 'config-home', 'opencode', '.ponytail-a
 fs.mkdirSync(path.dirname(opencodeFlagPath), { recursive: true });
 fs.writeFileSync(opencodeFlagPath, 'off');
 
+// The band's ledger holds task names (prompt text); it must not outlive an uninstall.
+const bandLedgerPath = path.join(temp, 'config-home', 'ponytail', 'band', 'shop.csv');
+fs.mkdirSync(path.dirname(bandLedgerPath), { recursive: true });
+fs.writeFileSync(bandLedgerPath, 'key,name\na-1,Fix the cart\n');
+const bandFlagPath = path.join(claudeDir, '.ponytail-band');
+fs.writeFileSync(bandFlagPath, 'off');
+
 const nudgeFlagPath = path.join(claudeDir, '.ponytail-statusline-nudged');
 fs.writeFileSync(nudgeFlagPath, '');
 
@@ -94,6 +101,8 @@ assert.equal(fs.existsSync(opencodeFlagPath), false, 'OpenCode mode flag must be
 assert.equal(fs.existsSync(qoderCustomFlagPath), true, 'default Qoder uninstall must not touch a separate custom config');
 assert.equal(fs.existsSync(nudgeFlagPath), false, 'statusline nudge flag must be removed');
 assert.equal(fs.existsSync(configPath), false, 'config file must be removed');
+assert.equal(fs.existsSync(path.dirname(bandLedgerPath)), false, 'band task ledger must be removed');
+assert.equal(fs.existsSync(bandFlagPath), false, 'band flag must be removed');
 assert.equal(fs.existsSync(cursorFlagPath), false, 'Cursor mode flag must be removed');
 assert.equal(fs.existsSync(statuslineCopyPath), false, 'statusline script copy must be removed (#1032)');
 assert.equal(fs.existsSync(statuslinePs1CopyPath), false, 'statusline .ps1 copy must be removed (#1032)');
