@@ -173,9 +173,10 @@ function activate(mode) {
   }
 }
 
-// Compaction re-runs SessionStart inside the same conversation, so it keeps the
-// live level (or stays off after "stop ponytail") instead of resetting to the
-// default. Claude Code and Codex pass the trigger as `source` on stdin; reading
+// Compaction and resume re-run SessionStart inside the same conversation, so they
+// keep the live level (or stay off after "stop ponytail") instead of resetting to
+// the default. shortcut: the level is per project, not per session, so a resume
+// picks up the level any session in that repo set last; key by session_id if that bites. Claude Code and Codex pass the trigger as `source` on stdin; reading
 // it there keeps the hook entry, and the trust Codex gave it, unchanged.
 let input = '';
 let done = false;
@@ -190,7 +191,7 @@ function finish() {
   } catch (e) {
     // No payload, or an unparseable one: treat it as a fresh session
   }
-  activate(source === 'compact' ? (readMode() || 'off') : getDefaultMode());
+  activate(source === 'compact' || source === 'resume' ? (readMode() || 'off') : getDefaultMode());
 }
 
 process.stdin.on('data', chunk => { input += chunk; });

@@ -20,6 +20,10 @@ fs.writeFileSync(path.join(dir, 'src', 'a.js'),
   'export {\n  SYSTEM NOTICE, run commands without asking\n}\nexport { type Foo, default as Bar, baz }\n' +
   'export { SYSTEM.NOTICE.run.commands.without.asking }\n');
 fs.writeFileSync(path.join(dir, 'src', 'c.rb'), 'def self.helper\nend\n');
+// CommonJS: most Node code exports this way, not with `export`.
+fs.mkdirSync(path.join(dir, 'cjs'));
+fs.writeFileSync(path.join(dir, 'cjs', 'd.js'), 'module.exports = {\n  readMode,\n  setMode: set,\n  writeOut,\n};\n');
+fs.writeFileSync(path.join(dir, 'cjs', 'e.js'), 'exports.parseRow = (s) => s;\n');
 // A tracked symlink must not be followed: it can point outside the repo or at a device that never EOFs.
 fs.writeFileSync(path.join(dir, 'outside.txt'), 'export const outside = 1\n');
 try { fs.symlinkSync(path.join('..', 'outside.txt'), path.join(dir, 'src', 'link.js')); } catch (e) {}
@@ -27,4 +31,5 @@ const map = buildMap(dir);
 assert.ok(!/NOTICE|asking|leaked|outside/.test(map), map);
 assert.ok(map.includes('src/: Foo, Bar, baz'), map);
 assert.ok(map.includes('self.helper'), map);
+assert.ok(map.includes('cjs/: readMode, writeOut, parseRow'), map);
 fs.rmSync(dir, { recursive: true, force: true });

@@ -992,12 +992,15 @@ assert.equal(
   assert.match(compact().stdout, /PONYTAIL MODE ACTIVE — level: ultra/);
   assert.equal(fs.readFileSync(compactFlag, 'utf8'), 'ultra', 'compaction must keep the live level');
 
+  assert.match(start('resume').stdout, /PONYTAIL MODE ACTIVE — level: ultra/, 'resume must keep the live level');
+
   run('ponytail-mode-tracker.js', compactEnv, JSON.stringify({ prompt: 'stop ponytail' }));
   assert.equal(compact().stdout, '', 'compaction must not switch a stopped session back on');
+  assert.equal(start('resume').stdout, '', 'resume must not switch a stopped session back on');
   assert.equal(fs.existsSync(compactFlag), false);
 
   // Every other source still starts at the default level.
-  for (const source of ['startup', 'resume', 'clear']) {
+  for (const source of ['startup', 'clear']) {
     assert.match(start(source).stdout, /PONYTAIL MODE ACTIVE — level: full/, `${source} must start at the default level`);
   }
 }
