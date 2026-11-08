@@ -1,0 +1,37 @@
+name: sync-upstream
+
+# Keeps this fork's main in step with DietrichGebert/ponytail.
+# Merges (never force-pushes), so commits made only in this fork survive.
+# Fails loudly on a conflict, or when upstream changed a workflow file
+# (GITHUB_TOKEN may not write .github/workflows); then use "Sync fork" on GitHub.
+
+on:
+  schedule:
+    - cron: '17 9 * * *' # daily, 09:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: github.repository == 'shaunazamarripa-svg/ponytail'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Merge upstream into main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if ! out=$(gh api -X POST "repos/${GITHUB_REPOSITORY}/merge-upstream" -f branch=main 2>&1); then
+            echo "::error::Upstream sync failed: ${out}"
+            echo "::error::Likely a merge conflict or an upstream workflow-file change. Open the repo on GitHub and use 'Sync fork'."
+            exit 1
+          fi
+          echo "${out}"
+          echo "### Upstream sync" >> "$GITHUB_STEP_SUMMARY"
+          echo "${out}" | jq -r '"- " + .message + " (" + .merge_type + ")"' >> "$GITHUB_STEP_SUMMARY"
